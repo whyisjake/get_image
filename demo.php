@@ -2,7 +2,6 @@
 <?php
 include_once 'class.get.image.php';
 
-
 $json = file_get_contents( 'images.json' );
 $content = json_decode( $json );
 
