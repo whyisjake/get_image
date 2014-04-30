@@ -1,17 +1,68 @@
-<?php
-include_once 'class.get.image.php';
+<html>
+<head>
 
-// initialize the class
-$image = new GetImage;
+	<!-- Jquery... -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 
-// just an image URL
-$image->source = 'http://static.php.net/www.php.net/images/php_snow_2008.gif';
-$image->save_to = 'images/'; // with trailing slash at the end
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 
-$get = $image->download('curl'); // using GD
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
 
-if($get)
-{
-echo 'The image has been saved.';
-}
-?>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<title>Get the Images!</title>
+	<script type="text/javascript" charset="utf-8" async defer>
+
+		var images = <?php echo file_get_contents( 'images.json' ); ?>;
+
+		jQuery( document ).ready( function( $ ) {
+
+			// Handle the request to email the schedule to the presenters over ajax
+			$( '.start' ).click( function( e ) {
+
+				e.preventDefault();
+
+				$.each( images, function( e, data ) {
+					console.log( data.ID );
+					console.log( data.photo );
+					$.ajax({
+						type: 'POST',
+						dataType: 'json',
+						url: 'demo.php',
+						data: {
+							'action' : 'get_image',
+							'ID' : data.ID,
+							'photo' : data.photo
+						},
+						success: function( results ) {
+							console.log( results );
+							if ( results.success ) {
+								$('.results').append( '<div class="results">' + results.success + '</div>');
+							} else if ( results.failed ) {
+								$('.results').append( '<div class="results">' + results.failed + '</div>');
+							}
+
+						},
+						error: function( jqHXR, textStatus, errorThrown ) {
+							console.log( 'ERROR' );
+							console.log( textStatus );
+							console.log( errorThrown );
+						}
+					});
+				});
+			});
+		});
+
+	</script>
+</head>
+<body>
+	<div class="container">
+		<button class="start" type="submit">Start...</button>
+	</div>
+
+	<div class="results"></div>
+
+</body>
+<html>
