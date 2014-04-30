@@ -1,29 +1,36 @@
-<html>
 <?php
 include_once 'class.get.image.php';
 
-$json = file_get_contents( 'images.json' );
-$content = json_decode( $json );
+if ( isset( $_POST ) ) {
 
-foreach ($content as $item) {
+	if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'get_image' ) ) {
+		$return = get_image( $_POST['photo'] );
+	}
+
+	die( json_encode( $return ) );
+}
+
+function get_image( $item ) {
 
 	// just an image URL
-	if ( !empty( $item->photo ) ) {
+	if ( !empty( $item ) ) {
+
 		// initialize the class
 		$image = new GetImage;
 
-		$image->source = $item->photo;
-		echo $item->photo;
+		$image->source = $item;
+
 		$image->save_to = 'images/'; // with trailing slash at the end
 
 		$get = $image->download('curl'); // using GD
 
 		if( $get ) {
-			echo 'The image has been saved.<br />';
+			return array( 'success' => 'The image has been saved.' );
 		} else {
-			echo 'Didn\'t download...<br />';
+			return array( 'failed' => 'Didn\'t download...' );
 		}
 	}
+	else {
+		return array( 'failed' => 'Didn\'t have an image...' );
+	}
 }
-
-?>
